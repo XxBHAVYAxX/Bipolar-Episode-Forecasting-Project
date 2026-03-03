@@ -1,33 +1,27 @@
-from flask import Flask, request, jsonify
-import pickle
-import pandas as pd
-
-app = Flask(__name__)
-
-# Load model and encoder
-model = pickle.load(open("model.pkl", "rb"))
-label_encoder = pickle.load(open("label_encoder.pkl", "rb"))
-
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.json
-    
-    # Convert input into DataFrame
     input_df = pd.DataFrame([data])
-    
-    # Convert categorical to dummy variables
     input_df = pd.get_dummies(input_df)
-    
-    # IMPORTANT: Align columns with training data
+
     model_columns = model.feature_names_in_
     input_df = input_df.reindex(columns=model_columns, fill_value=0)
 
     prediction = model.predict(input_df)
-    final_prediction = label_encoder.inverse_transform(prediction)
+    probabilities = model.predict_proba(input_df)
 
-    return jsonify({
-        "prediction": final_prediction[0]
-    })
+    disorder = label_encoder.inverse_transform(prediction)[0]
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    mania_prob = round(max(probabilities[0]) * 100)
+    depression_risk = round((1 - max(probabilities[0])) * 100)
+
+    response = {
+        "mood_stability": disorder,
+        "mania_probability": mania_prob,
+        "depression_risk": depression_risk,
+        "sleep_quality": data.get("Sleep", 7),
+        "next_episode_risk": "Low" if mania_prob < 40 else "High",
+        "summary": f"Prediction indicates {disorder} pattern."
+    }
+
+    return jsonify(response)
