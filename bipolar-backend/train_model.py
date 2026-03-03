@@ -5,13 +5,13 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, classification_report
 
-# 🔹 Load dataset
-df = pd.read_csv("bipoler_dataset.csv")
+# 🔹 Load dataset (YOUR FILE NAME)
+df = pd.read_csv("bipolar_dataset.csv")
 
 print("Dataset Loaded Successfully")
 print("Shape:", df.shape)
 
-# 🔹 Drop Patient Number (not useful)
+# 🔹 Drop Patient Number column
 df = df.drop("Patient Number", axis=1)
 
 # 🔹 Clean Optimisim column (convert "4 From 10" → 4)
@@ -21,7 +21,7 @@ df["Optimisim"] = df["Optimisim"].str.extract('(\d+)').astype(int)
 X = df.drop("Expert Diagnose", axis=1)
 y = df["Expert Diagnose"]
 
-# 🔹 Encode all categorical features
+# 🔹 Convert categorical features into numbers
 X = pd.get_dummies(X)
 
 # 🔹 Encode target labels
