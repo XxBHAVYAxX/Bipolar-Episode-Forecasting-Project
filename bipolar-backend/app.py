@@ -37,7 +37,7 @@ def predict():
         prediction = model.predict(input_df)
         probabilities = model.predict_proba(input_df)
 
-        # Convert encoded label back to original
+        # Convert encoded label back to original  
         disorder = label_encoder.inverse_transform(prediction)[0]
 
         # Calculate probabilities
