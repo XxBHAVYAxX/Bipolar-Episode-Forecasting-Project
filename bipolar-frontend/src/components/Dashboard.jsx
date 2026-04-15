@@ -65,7 +65,7 @@ const Dashboard = ({ user }) => {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (
