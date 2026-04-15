@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Shield, AlertTriangle, HeartPulse, Moon, Zap, Loader } from "lucide-react";
-import MoodChart from "./MoodChart";
+import MoodChart from "./Moodchart";
 
 const gradients = {
   purple: "linear-gradient(135deg, #8b5cf6, #a855f7)",
