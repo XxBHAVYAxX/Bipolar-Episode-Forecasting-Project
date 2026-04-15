@@ -1,5 +1,5 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { Plus, Smile, Meh, Frown, Zap, Moon } from "lucide-react";
 
 const moodIcons = [Frown, Meh, Smile];
@@ -11,22 +11,56 @@ const moodGradients = [
   "linear-gradient(135deg, #10b981, #14b8a6)",
 ];
 
-const initialEntries = [
-  { id: 1, date: "2026-03-03", mood: 2, energy: 7, sleep: 7.5, notes: "Feeling positive today, good sleep." },
-  { id: 2, date: "2026-03-02", mood: 1, energy: 5, sleep: 6, notes: "A bit low energy, cloudy day." },
-  { id: 3, date: "2026-03-01", mood: 2, energy: 8, sleep: 8, notes: "Great morning workout, productive day!" },
-  { id: 4, date: "2026-02-28", mood: 0, energy: 3, sleep: 4.5, notes: "Couldn't sleep well, feeling down." },
-  { id: 5, date: "2026-02-27", mood: 1, energy: 6, sleep: 7, notes: "Average day, nothing special." },
-  { id: 6, date: "2026-02-26", mood: 2, energy: 7, sleep: 7.8, notes: "Good social interactions, felt connected." },
-];
-
-const MoodLogs = () => {
-  const [entries] = useState(initialEntries);
+const MoodLogs = ({ user }) => {
+  const [entries, setEntries] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newMood, setNewMood] = useState(1);
   const [newEnergy, setNewEnergy] = useState(5);
   const [newSleep, setNewSleep] = useState(7);
   const [newNotes, setNewNotes] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const fetchLogs = async () => {
+    try {
+      let url = "http://localhost:5000/api/logs";
+      if (user && user.user_id) url += `?user_id=${user.user_id}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setEntries(data);
+    } catch (err) {
+      console.error("Failed to fetch logs", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+
+  const handleSave = async () => {
+    const payload = {
+      user_id: user?.user_id || 1,
+      date: new Date().toISOString().split("T")[0],
+      mood: newMood,
+      energy: newEnergy,
+      sleep: newSleep,
+      notes: newNotes,
+    };
+
+    try {
+      await fetch("http://localhost:5000/api/logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      setShowForm(false);
+      setNewNotes("");
+      fetchLogs(); // refresh latest
+    } catch (err) {
+      console.error("Failed to save log", err);
+    }
+  };
 
   return (
     <>
@@ -92,7 +126,7 @@ const MoodLogs = () => {
               padding: "8px 16px", fontSize: "14px", border: "none", borderRadius: "12px",
               backgroundColor: "transparent", cursor: "pointer", color: "#6b7280"
             }}>Cancel</button>
-            <button style={{
+            <button onClick={handleSave} style={{
               background: "linear-gradient(135deg, #10b981, #14b8a6)", color: "white",
               borderRadius: "12px", padding: "8px 20px", fontSize: "14px", fontWeight: 500,
               border: "none", cursor: "pointer"
@@ -101,7 +135,14 @@ const MoodLogs = () => {
         </motion.div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "24px", color: "#6b7280" }}>Loading...</div>
+      ) : entries.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "48px", backgroundColor: "white", borderRadius: "16px", boxShadow: "0 4px 24px -4px rgba(0,0,0,0.08)" }}>
+          <p style={{ color: "#6b7280", fontSize: "16px", fontFamily: "'Space Grotesk'" }}>No logs found. Add your first entry!</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         {entries.map((entry, i) => {
           const MoodIcon = moodIcons[entry.mood];
           return (
@@ -134,7 +175,8 @@ const MoodLogs = () => {
             </motion.div>
           );
         })}
-      </div>
+        </div>
+      )}
     </>
   );
 };

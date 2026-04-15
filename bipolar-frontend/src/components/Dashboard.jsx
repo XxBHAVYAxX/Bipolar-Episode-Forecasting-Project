@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, AlertTriangle, HeartPulse, Moon, Zap } from "lucide-react";
+import { Shield, AlertTriangle, HeartPulse, Moon, Zap, Loader } from "lucide-react";
 import MoodChart from "./MoodChart";
 
 const gradients = {
@@ -47,41 +48,78 @@ const InfoCard = ({ title, value, color = "#8b5cf6", delay = 0, icon }) => (
   </motion.div>
 );
 
-const Dashboard = () => (
-  <>
-    <motion.h1
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={{ fontSize: "30px", fontWeight: "bold", marginBottom: "32px", fontFamily: "'Space Grotesk', sans-serif" }}
-    >
-      Dashboard
-    </motion.h1>
+const Dashboard = ({ user }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "32px" }}>
-      <StatCard title="Mood Stability" value="Stable" gradient={gradients.purple} delay={0.1} icon={<Shield size={20} />} />
-      <StatCard title="Mania Probability" value="18%" gradient={gradients.orange} delay={0.2} icon={<AlertTriangle size={20} />} />
-      <StatCard title="Depression Risk" value="42%" gradient={gradients.green} delay={0.3} icon={<HeartPulse size={20} />} />
-    </div>
+  useEffect(() => {
+    let url = "http://localhost:5000/api/dashboard";
+    if (user && user.user_id) url += `?user_id=${user.user_id}`;
+    fetch(url)
+      .then(res => res.json())
+      .then(d => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
 
-    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
-      <MoodChart />
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-        <InfoCard title="Sleep Quality" value="7.4 hrs" color="#14b8a6" delay={0.4} icon={<Moon size={16} />} />
-        <InfoCard title="Next Episode Risk" value="Low" color="#14b8a6" delay={0.5} icon={<Zap size={16} />} />
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
-          style={{ backgroundColor: "white", borderRadius: "16px", padding: "20px", boxShadow: "0 4px 24px -4px rgba(0,0,0,0.08)" }}
-        >
-          <p style={{ fontSize: "14px", fontWeight: 500, color: "#6b7280" }}>Weekly Summary</p>
-          <p style={{ fontSize: "14px", color: "#374151", marginTop: "8px", lineHeight: 1.6 }}>
-            Your mood has been relatively stable this week. Sleep patterns show improvement. Keep up with your routines! 💪
-          </p>
-        </motion.div>
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <Loader className="animate-spin" size={48} color="#8b5cf6" />
       </div>
-    </div>
-  </>
-);
+    );
+  }
+
+  if (!data) return null;
+
+  return (
+    <>
+      <motion.h1
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{ fontSize: "30px", fontWeight: "bold", marginBottom: "32px", fontFamily: "'Space Grotesk', sans-serif" }}
+      >
+        Dashboard
+      </motion.h1>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "32px" }}>
+        <StatCard title="Mood Stability" value={data.mood_stability} gradient={gradients.purple} delay={0.1} icon={<Shield size={20} />} />
+        <StatCard title="Mania Probability" value={`${data.mania_probability}%`} gradient={gradients.orange} delay={0.2} icon={<AlertTriangle size={20} />} />
+        <StatCard title="Depression Risk" value={`${data.depression_risk}%`} gradient={gradients.green} delay={0.3} icon={<HeartPulse size={20} />} />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px", flexWrap: "wrap" }}>
+        <div style={{ minWidth: "300px" }}>
+          <MoodChart data={data.chart_data || []} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px", minWidth: "250px" }}>
+          <InfoCard title="Sleep Quality (Latest)" value={`${data.sleep_quality} hrs`} color="#14b8a6" delay={0.4} icon={<Moon size={16} />} />
+          <InfoCard title="Next Episode Risk" value={data.next_episode_risk} color="#14b8a6" delay={0.5} icon={<Zap size={16} />} />
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            style={{ backgroundColor: "white", borderRadius: "16px", padding: "20px", boxShadow: "0 4px 24px -4px rgba(0,0,0,0.08)" }}
+          >
+            <p style={{ fontSize: "14px", fontWeight: 500, color: "#6b7280" }}>Analysis Summary</p>
+            <p style={{ fontSize: "14px", color: "#374151", marginTop: "8px", lineHeight: 1.6 }}>
+              {data.summary}
+            </p>
+            {!data.has_data && (
+              <p style={{ fontSize: "13px", color: "#ef4444", marginTop: "8px", fontWeight: "bold" }}>
+                Add your first log in the Mood Logs tab!
+              </p>
+            )}
+          </motion.div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 export default Dashboard;

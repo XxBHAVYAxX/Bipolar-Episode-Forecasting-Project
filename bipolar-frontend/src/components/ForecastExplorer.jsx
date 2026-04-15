@@ -1,23 +1,7 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
-import { TrendingUp, AlertTriangle, Shield, Calendar } from "lucide-react";
-
-const forecastData = [
-  { day: "Mon", predicted: 6.5, actual: 6 },
-  { day: "Tue", predicted: 5.8, actual: 5 },
-  { day: "Wed", predicted: 6.2, actual: 7 },
-  { day: "Thu", predicted: 5.0, actual: 4 },
-  { day: "Fri", predicted: 6.8, actual: 6 },
-  { day: "Sat", predicted: 7.5, actual: 8 },
-  { day: "Sun", predicted: 7.0, actual: null },
-];
-
-const riskData = [
-  { week: "W1", mania: 12, depression: 35 },
-  { week: "W2", mania: 18, depression: 42 },
-  { week: "W3", mania: 15, depression: 38 },
-  { week: "W4", mania: 22, depression: 30 },
-];
+import { TrendingUp, AlertTriangle, Shield, Calendar, Loader } from "lucide-react";
 
 const cards = [
   { title: "7-Day Outlook", value: "Stable", icon: Shield, gradient: "linear-gradient(135deg, #10b981, #14b8a6)" },
@@ -25,12 +9,66 @@ const cards = [
   { title: "Confidence", value: "82%", icon: TrendingUp, gradient: "linear-gradient(135deg, #8b5cf6, #a855f7)" },
 ];
 
-const ForecastExplorer = () => (
-  <>
-    <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-      style={{ fontSize: "30px", fontWeight: "bold", marginBottom: "32px", fontFamily: "'Space Grotesk', sans-serif" }}>
-      Forecast
-    </motion.h1>
+const ForecastExplorer = ({ user }) => {
+  const [forecastData, setForecastData] = useState([]);
+  const [riskData, setRiskData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [hasEnoughData, setHasEnoughData] = useState(true);
+  const [daysLogged, setDaysLogged] = useState(0);
+
+  useEffect(() => {
+    let url = "http://localhost:5000/api/forecast";
+    if (user && user.user_id) url += `?user_id=${user.user_id}`;
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data.has_enough_data === false) {
+           setHasEnoughData(false);
+           setDaysLogged(data.days_logged || 0);
+        } else {
+           setHasEnoughData(true);
+           setForecastData(data.forecastData);
+           setRiskData(data.riskData);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <Loader className="animate-spin" size={48} color="#8b5cf6" />
+      </div>
+    );
+  }
+
+  if (!hasEnoughData) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", textAlign: "center" }}>
+        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+          <Shield size={64} color="#9ca3af" style={{ marginBottom: "16px" }} />
+          <h2 style={{ fontSize: "24px", fontWeight: "bold", fontFamily: "'Space Grotesk', sans-serif" }}>Gathering Data</h2>
+          <p style={{ color: "#6b7280", marginTop: "8px", maxWidth: "400px" }}>
+            We need at least 7 days of mood logs to safely run predictive forecasting models.
+            <br/><br/>
+            You have logged <strong>{daysLogged}</strong> / 7 days.
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <motion.h1 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        style={{ fontSize: "30px", fontWeight: "bold", marginBottom: "32px", fontFamily: "'Space Grotesk', sans-serif" }}>
+        Forecast
+      </motion.h1>
 
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px", marginBottom: "32px" }}>
       {cards.map((item, i) => (
@@ -86,6 +124,7 @@ const ForecastExplorer = () => (
       </motion.div>
     </div>
   </>
-);
+  );
+};
 
 export default ForecastExplorer;

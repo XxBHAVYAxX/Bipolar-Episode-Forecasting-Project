@@ -1,17 +1,7 @@
 import { motion } from "framer-motion";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-const data = [
-  { day: "Mon", mood: 6, sleep: 7 },
-  { day: "Tue", mood: 5, sleep: 6.5 },
-  { day: "Wed", mood: 7, sleep: 8 },
-  { day: "Thu", mood: 4, sleep: 5 },
-  { day: "Fri", mood: 6, sleep: 7.5 },
-  { day: "Sat", mood: 8, sleep: 8.5 },
-  { day: "Sun", mood: 7, sleep: 7.4 },
-];
-
-const MoodChart = () => (
+const MoodChart = ({ data }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}

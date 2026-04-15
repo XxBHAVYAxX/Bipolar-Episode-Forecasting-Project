@@ -1,12 +1,12 @@
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
-const Layout = ({ children }) => (
-  <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#f5f6fa" }}>
+const Layout = ({ children, user, onLogout }) => (
+  <div style={{ display: "flex", minHeight: "100vh", background: "linear-gradient(135deg, #f5f7fa 0%, #e4ecfe 100%)" }}>
     <Sidebar />
-    <div style={{ flex: 1, marginLeft: "256px" }}>
-      <Topbar />
-      <main style={{ padding: "32px" }}>{children}</main>
+    <div style={{ flex: 1, marginLeft: "256px", display: "flex", flexDirection: "column" }}>
+      <Topbar user={user} onLogout={onLogout} />
+      <main style={{ padding: "32px", flex: 1 }}>{children}</main>
     </div>
   </div>
 );

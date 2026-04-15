@@ -1,21 +1,53 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
+import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import MoodLogs from "./components/MoodLogs";
 import ForecastExplorer from "./components/ForecastExplorer";
 import Settings from "./components/Settings";
 
-const App = () => (
-  <BrowserRouter>
-    <Layout>
+const App = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("bipolar_user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    localStorage.setItem("bipolar_user", JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("bipolar_user");
+  };
+
+  return (
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/mood-logs" element={<MoodLogs />} />
-        <Route path="/forecast" element={<ForecastExplorer />} />
-        <Route path="/settings" element={<Settings />} />
+        {/* Full screen login intercept */}
+        <Route path="/login" element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />} />
+        
+        {/* Main Application Shell Access */}
+        <Route path="/*" element={
+          <Layout user={user} onLogout={handleLogout}>
+            <Routes>
+              <Route path="/" element={<Dashboard user={user} />} />
+              <Route path="/mood-logs" element={<MoodLogs user={user} />} />
+              <Route path="/forecast" element={<ForecastExplorer user={user} />} />
+              <Route path="/settings" element={<Settings onLogout={handleLogout} />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </Layout>
+        } />
       </Routes>
-    </Layout>
-  </BrowserRouter>
-);
+    </BrowserRouter>
+  );
+};
 
 export default App;
