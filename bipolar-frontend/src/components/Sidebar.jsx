@@ -1,11 +1,12 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, BookHeart, TrendingUp, Settings, Brain } from "lucide-react";
+import { LayoutDashboard, BookHeart, TrendingUp, Settings, Brain, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/mood-logs", label: "Mood Logs", icon: BookHeart },
   { to: "/forecast", label: "Forecast", icon: TrendingUp },
+  { to: "/chat", label: "AI Chat", icon: MessageSquare },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

@@ -1,9 +1,11 @@
 import pandas as pd
 import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 # 🔹 Load dataset (YOUR FILE NAME)
 df = pd.read_csv("bipolar_dataset.csv")
@@ -44,6 +46,26 @@ accuracy = accuracy_score(y_test, y_pred)
 print("\nModel Accuracy:", accuracy)
 print("\nClassification Report:\n")
 print(classification_report(y_test, y_pred))
+
+# 🔹 Visualize and Save Model Accuracy (Bar Graph)
+plt.figure(figsize=(6, 5))
+metrics = ['Accuracy', 'Error']
+values = [accuracy, 1 - accuracy]
+colors = ['#4CAF50', '#F44336'] # Green for accuracy, Red for error
+
+bars = plt.bar(metrics, values, color=colors, width=0.5)
+plt.ylim(0, 1.1)
+plt.title('Model Accuracy Performance')
+plt.ylabel('Percentage')
+
+# Add percentage labels on top of bars
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval + 0.02, f"{yval:.2%}", ha='center', fontsize=12, fontweight='bold')
+
+plt.savefig('model_accuracy_graph.png', bbox_inches='tight')
+print("\nModel accuracy graph saved as 'model_accuracy_graph.png'")
+plt.show()
 
 # 🔹 Save model and encoder
 pickle.dump(model, open("model.pkl", "wb"))

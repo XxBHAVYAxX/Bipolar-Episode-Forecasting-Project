@@ -6,6 +6,7 @@ import Dashboard from "./components/Dashboard";
 import MoodLogs from "./components/MoodLogs";
 import ForecastExplorer from "./components/ForecastExplorer";
 import Settings from "./components/Settings";
+import ChatArea from "./components/ChatArea";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -40,6 +41,7 @@ const App = () => {
               <Route path="/" element={<Dashboard user={user} />} />
               <Route path="/mood-logs" element={<MoodLogs user={user} />} />
               <Route path="/forecast" element={<ForecastExplorer user={user} />} />
+              <Route path="/chat" element={<ChatArea user={user} />} />
               <Route path="/settings" element={<Settings onLogout={handleLogout} />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
