@@ -1,27 +1,28 @@
 # 🧠 Bipolar Episode Forecasting System
 
-An AI-powered full-stack web application that predicts mental disorder types based on behavioral and psychological indicators.
+An AI-powered full-stack web application designed to predict and monitor mental health patterns using behavioral and psychological indicators. This system leverages Machine Learning to provide early detection of mood swings, helping users track their mental well-being through data-driven insights.
 
-> ⚠️ This project is for educational and research purposes only. It is not a medical diagnostic tool.
+> ⚠️ **Disclaimer:** This project is for educational and research purposes only. It is not a medical diagnostic tool or a substitute for professional clinical advice.
 
 ---
 
 ## 🚀 Project Overview
 
-The Bipolar Episode Forecasting System is a Machine Learning-based web application that:
+The Bipolar Episode Forecasting System is a Machine Learning-powered dashboard that:
 
-* Collects behavioral and psychological symptom inputs
-* Uses a trained Random Forest model to predict disorder type
-* Stores predictions in MongoDB
-* Displays results through a clean frontend interface
-
-This system demonstrates how AI can assist in early mental health pattern detection.
+* **Tracks Mood & Sleep:** Users can log daily mood, energy levels, and sleep duration.
+* **Predictive Analytics:** Uses a trained **Random Forest** model to identify patterns such as Mania, Depression, or Stability based on behavioral indicators.
+* **Visual Insights:** Generates interactive charts to visualize mood stability and forecasting trends over time.
+* **Risk Assessment:** Calculates mania probability and depression risk percentages based on historical log data.
+* **Dynamic Forecasting:** Analyzes historical logs (up to 28 days) to generate weekly risk trends and future outlooks.
 
 ---
 
 ## 🏗️ System Architecture
 
-User → Frontend (HTML/CSS/JS) → Flask Backend → ML Model → MongoDB Database
+```
+User → React Frontend (Vite) → Flask Backend (REST API) → ML Model → MongoDB Database
+```
 
 ---
 
@@ -29,156 +30,103 @@ User → Frontend (HTML/CSS/JS) → Flask Backend → ML Model → MongoDB Datab
 
 ### Frontend
 
-* HTML
-* CSS
-* JavaScript
+* **Framework:** React 19 (Vite)
+* **Styling:** Tailwind CSS & Framer Motion
+* **Charts:** Recharts
+* **Icons:** Lucide-React
 
 ### Backend
 
-* Python
-* Flask
-* REST API
+* **Language:** Python
+* **Framework:** Flask with Flask-CORS
+* **Database:** MongoDB (via PyMongo)
 
 ### Machine Learning
 
-* Scikit-learn
-* Random Forest Classifier
-* Label Encoding
-* One-hot Encoding
-
-### Database
-
-* MongoDB (Atlas / Local)
-* PyMongo
-
----
-
-## 📊 Dataset
-
-* Dataset Name: `bipolar_dataset.csv`
-* Total Records: 120
-* Features: 18 behavioral indicators
-* Target Column: `Expert Diagnose`
-
-### Data Preprocessing Steps:
-
-* Removed `Patient Number`
-* Converted "Optimisim" column from "4 From 10" → 4
-* Applied One-Hot Encoding on categorical features
-* Encoded target labels using LabelEncoder
-
----
-
-## 🤖 Model Training
-
-Algorithm Used:
-
-* Random Forest Classifier
-
-Steps:
-
-1. Train/Test Split (80/20)
-2. Model Training
-3. Accuracy Evaluation
-4. Model Saved as `model.pkl`
-5. Label Encoder Saved as `label_encoder.pkl`
+* **Library:** Scikit-learn
+* **Algorithm:** Random Forest Classifier
+* **Preprocessing:** Label Encoding & One-Hot Encoding
 
 ---
 
 ## 📁 Project Structure
 
 ```
-Bipolar Episode Forecasting Project
+Bipolar-Episode-Forecasting-Project/
+├── bipolar-frontend/          
+│   ├── src/
+│   │   ├── components/        
+│   │   ├── App.jsx            
+│   │   └── index.css          
+│   ├── package.json           
+│   └── vite.config.js         
 │
-├── bipolar-frontend/
-│   ├── index.html
-│   ├── style.css
-│   ├── script.js
+├── bipolar-backend/           
+│   ├── app.py                 
+│   ├── train_model.py         
+│   ├── bipolar_dataset.csv    
+│   ├── model.pkl              
+│   ├── label_encoder.pkl      
+│   └── requirements.txt       
 │
-├── bipolar-backend/
-│   ├── train_model.py
-│   ├── app.py
-│   ├── bipolar_dataset.csv
-│   ├── model.pkl
-│   ├── label_encoder.pkl
-│   └── requirements.txt
-│
-└── README.md
-```
-
----
-
-## ▶️ How To Run The Project
-
-### 1️⃣ Install Dependencies
-
-```
-pip install -r requirements.txt
-```
-
-### 2️⃣ Train The Model
-
-```
-python train_model.py
-```
-
-### 3️⃣ Start Flask Server
-
-```
-python app.py
-```
-
-Backend will run on:
-
-```
-http://127.0.0.1:5000
+└── README.md                  
 ```
 
 ---
 
 ## 📌 API Endpoints
 
-### POST `/predict`
+### 🔐 Authentication
 
-Takes JSON input of behavioral features and returns predicted disorder.
+* `POST /api/register` → Create a new user account
+* `POST /api/login` → Authenticate users and establish a session
 
-### GET `/history`
+### 📊 Data & Forecasting
 
-Returns all stored prediction records from MongoDB.
-
----
-
-## 💾 Database Schema (MongoDB)
-
-Each prediction stores:
-
-* Sleep / Mood / Behavioral inputs
-* Predicted Disorder
-* Timestamp
+* `GET /api/dashboard` → Retrieve latest mood stats, sleep quality, and summary predictions
+* `GET /api/forecast` → Analyze historical data to calculate weekly risk trends
+* `POST /api/logs` → Submit a new daily entry
+* `GET /api/logs` → Fetch user log history
 
 ---
 
-## 📈 Future Improvements
+## ▶️ Getting Started
 
-* Add user authentication (JWT)
-* Add probability percentage output
-* Add dashboard with charts
-* Deploy using Render / Vercel
-* Upgrade to LSTM time-series forecasting
-* Improve dataset size
+### 1️⃣ Backend Setup
+
+```bash
+cd bipolar-backend
+pip install -r requirements.txt
+python train_model.py
+python app.py
+```
+
+Backend runs on: http://127.0.0.1:5000
 
 ---
 
-## 🎯 Resume Description
+### 2️⃣ Frontend Setup
 
-Built a full-stack AI-based mental health prediction system using Flask, Random Forest, and MongoDB. Implemented data preprocessing, model training, REST API integration, and database storage for prediction history.
+```bash
+cd bipolar-frontend
+npm install
+npm run dev
+```
+
+Frontend runs on: http://localhost:5173
+
+---
+
+## 🎯 Key Achievements
+
+* **Advanced Analytics:** Forecasting engine analyzing up to 28 days of data
+* **Modern UI/UX:** Responsive dashboard with real-time visualizations
+* **Full-Stack Integration:** End-to-end pipeline from logging to ML predictions
 
 ---
 
 ## 👨‍💻 Author
 
-Bhavya Kanojia
-B.Tech CSE
+**Bhavya Kanojia**
+B.Tech CSE, IILM University
 AI & Full Stack Development Enthusiast
-
----
